@@ -409,10 +409,16 @@ class ClosestPairVisualizer:
                                       interval=1000//fps, repeat=True)
         
         # 保存动画
-        Writer = animation.writers['ffmpeg']
-        writer = Writer(fps=fps, metadata=dict(artist='Algorithm Visualization'),
-                       bitrate=1800)
-        anim.save(output_file, writer=writer, dpi=120)
+        # 保存动画
+        if use_pillow or output_file.endswith('.gif'):
+            Writer = animation.writers['pillow']
+            writer = Writer(fps=fps)
+            anim.save(output_file, writer=writer, dpi=120)
+        else:
+            Writer = animation.writers['ffmpeg']
+            writer = Writer(fps=fps, metadata=dict(artist='Algorithm Visualization'),
+                        bitrate=1800)
+            anim.save(output_file, writer=writer, dpi=120)
         plt.close()
         
         print(f"动画已保存到: {output_file}")
@@ -423,7 +429,7 @@ def main():
     # 参数设置
     N = 50  # 点的数量 (>=36)
     SEED = 42  # 随机种子
-    OUTPUT_FILE = 'closest_pair_animation.mp4'
+    OUTPUT_FILE = 'closest_pair_animation.gif'
     FPS = 2  # 帧率
     
     print("=" * 60)
