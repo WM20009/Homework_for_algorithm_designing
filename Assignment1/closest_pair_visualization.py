@@ -35,7 +35,7 @@ class ClosestPairVisualizerUltraSmooth:
         
         # 平滑动画设置
         self.smooth_frames = 6  # 每个关键操作的平滑帧数
-        self.pause_frames = 2   # 关键状态的暂停帧数
+        self.pause_frames = 4   # 关键状态的暂停帧数
         self.highlight_frames = 4  # 高亮效果的帧数
         
     def generate_points(self):
@@ -742,7 +742,7 @@ class ClosestPairVisualizerUltraSmooth:
                     ax.add_patch(circle2)
                 
                     info_text = f"最小距离 = {distance:.6f}\n"
-                    info_text += f"点对: ({p1[0]:.3f}, {p1[1]:.3f}) ↔ ({p2[0]:.3f}, {p2[1]:.3f})"
+                    info_text += f"点对: ({p1[0]:.3f}, {p1[1]:.3f})  ({p2[0]:.3f}, {p2[1]:.3f})"
             
             # 设置坐标轴
             ax.set_xlim(-0.05, 1.05)
@@ -766,7 +766,7 @@ class ClosestPairVisualizerUltraSmooth:
                 status_text += f"最短距离: {global_min_dist:.6f}\n"
                 if global_pair:
                     p1, p2 = self.points[global_pair[0]], self.points[global_pair[1]]
-                    status_text += f"点对: P{global_pair[0]} ↔ P{global_pair[1]}\n"
+                    status_text += f"点对: P{global_pair[0]}  P{global_pair[1]}\n"
                     status_text += f"坐标: ({p1[0]:.3f}, {p1[1]:.3f})\n"
                     status_text += f"     ({p2[0]:.3f}, {p2[1]:.3f})"
             else:
@@ -803,10 +803,10 @@ class ClosestPairVisualizerUltraSmooth:
  
 def main():
     """主函数"""
-    N = 20  # 减少点数让动画更清晰，避免复杂的索引问题
+    N = 10  # 减少点数让动画更清晰，避免复杂的索引问题
     SEED = 42
     OUTPUT_FILE = 'closest_pair_ultra_smooth_fixed.gif'
-    FPS = 6  # 稍微降低帧率
+    FPS = 4 # 稍微降低帧率
     
     print("=" * 60)
     print("平面最近点对问题 - 分治算法可视化 (超平滑版-修复)")
