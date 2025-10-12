@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 """
-平面最近点对问题 - 分治算法实现与可视化 (超平滑版 - 修复版)
-Algorithm Design and Analysis - Closest Pair of Points (Ultra Smooth - Fixed)
+平面最近点对问题 - 分治算法实现与可视化 (最终美化版)
+Algorithm Design and Analysis - Closest Pair of Points (Final Beautiful Version)
 """
  
 import numpy as np
@@ -9,18 +10,76 @@ import matplotlib.animation as animation
 from matplotlib.patches import Rectangle, Circle
 import random
 import math
-import matplotlib.font_manager as fm
-
-
-
-# 设置中文字体
-plt.rcParams['font.sans-serif'] = ['SimHei', 'DejaVu Sans']
+from matplotlib.font_manager import FontManager
+# ============= 美化配置 =============
+# 设置可靠的字体
+plt.rcParams['font.family'] = 'Microsoft YaHei'
+plt.rcParams['font.size'] = 11
 plt.rcParams['axes.unicode_minus'] = False
-
-class ClosestPairVisualizerUltraSmooth:
-    def __init__(self, n=50, seed=42):
+ 
+# 现代配色方案
+class ModernColors:
+    # 主色调 - 深蓝科技风
+    PRIMARY = '#2E3440'      # 深蓝灰
+    SECONDARY = '#3B4252'    # 中蓝灰
+    ACCENT = '#5E81AC'       # 蓝色
+    
+    # 背景色
+    BG_MAIN = '#ECEFF4'      # 浅灰白
+    BG_CARD = '#FFFFFF'      # 纯白
+    
+    # 点的颜色
+    POINT_NORMAL = '#81A1C1'     # 柔和蓝
+    POINT_HIGHLIGHT = '#EBCB8B'  # 温暖黄
+    POINT_ACTIVE = '#BF616A'     # 柔和红
+    POINT_BEST = '#A3BE8C'       # 柔和绿
+    
+    # 线条颜色
+    LINE_DIVIDE = '#D08770'      # 橙色
+    LINE_BEST = '#A3BE8C'        # 绿色
+    LINE_CURRENT = '#B48EAD'     # 紫色
+    LINE_NEW = '#BF616A'         # 红色
+    
+    # 区域颜色
+    STRIP_FILL = '#EBCB8B'       # 浅黄
+    STRIP_BORDER = '#D08770'     # 橙色
+    
+    # 文字颜色
+    TEXT_PRIMARY = '#2E3440'     # 深色
+    TEXT_SECONDARY = '#4C566A'   # 中等深色
+    TEXT_LIGHT = '#D8DEE9'       # 浅色
+    
+    # 状态框颜色
+    SUCCESS_BOX = '#A3BE8C'      # 成功-绿色
+    INFO_BOX = '#81A1C1'         # 信息-蓝色
+    WARNING_BOX = '#EBCB8B'      # 警告-黄色
+    ERROR_BOX = '#BF616A'        # 错误-红色
+ 
+# 使用符号字符替代emoji
+class Symbols:
+    TARGET = "●"      # 目标点
+    ARROW = "→"       # 箭头  
+    STAR = "★"        # 星号
+    CIRCLE = "○"      # 圆圈
+    DIAMOND = "◆"     # 钻石
+    CHECK = "√"       # 对勾
+    SEARCH = "Search"      # 搜索
+    INFO = "i"        # 信息
+ 
+# 设置matplotlib样式
+plt.style.use('default')
+plt.rcParams['figure.facecolor'] = ModernColors.BG_MAIN
+plt.rcParams['axes.facecolor'] = ModernColors.BG_CARD
+plt.rcParams['axes.edgecolor'] = ModernColors.SECONDARY
+plt.rcParams['axes.linewidth'] = 1.2
+plt.rcParams['grid.color'] = ModernColors.SECONDARY
+plt.rcParams['grid.alpha'] = 0.3
+plt.rcParams['text.color'] = ModernColors.TEXT_PRIMARY
+ 
+class ClosestPairVisualizerBeautiful:
+    def __init__(self, n=20, seed=42):
         """
-        初始化超平滑可视化器
+        初始化美化版可视化器
         """
         self.n = n
         self.seed = seed
@@ -34,9 +93,11 @@ class ClosestPairVisualizerUltraSmooth:
         self.global_closest_pair = None
         
         # 平滑动画设置
-        self.smooth_frames = 6  # 每个关键操作的平滑帧数
-        self.pause_frames = 4   # 关键状态的暂停帧数
-        self.highlight_frames = 4  # 高亮效果的帧数
+        self.smooth_frames = 6  
+        self.pause_frames = 3   
+        self.highlight_frames = 5
+        self.text_fade_frames = 4   
+        self.text_hold_frames = 5   
         
     def generate_points(self):
         """生成满足作业要求的点集"""
@@ -91,14 +152,8 @@ class ClosestPairVisualizerUltraSmooth:
         return min_dist, pair
     
     def strip_closest(self, strip, d, strip_indices):
-        """
-        在带区内寻找最近点对 (修复版)
-        :param strip: 带区内的点
-        :param d: 当前最小距离
-        :param strip_indices: 带区内点的原始索引
-        """
+        """在带区内寻找最近点对"""
         if len(strip) != len(strip_indices):
-            print(f"警告: strip长度({len(strip)}) != strip_indices长度({len(strip_indices)})")
             return d, None
             
         min_dist = d
@@ -107,7 +162,6 @@ class ClosestPairVisualizerUltraSmooth:
         # 按y坐标排序，同时保持索引对应关系
         strip_sorted = sorted(zip(strip, strip_indices), key=lambda x: x[0][1])
         
-        # 对于每个点，检查后续的点
         for i in range(len(strip_sorted)):
             j = i + 1
             while j < len(strip_sorted) and (strip_sorted[j][0][1] - strip_sorted[i][0][1]) < min_dist:
@@ -131,14 +185,12 @@ class ClosestPairVisualizerUltraSmooth:
     def add_smooth_transition(self, transition_type, **kwargs):
         """添加平滑过渡效果"""
         if transition_type == 'divide_line':
-            # 分割线滑动动画
             start_x = kwargs.get('start_x', 0)
             end_x = kwargs.get('end_x', 1)
             depth = kwargs.get('depth', 0)
             
             for i in range(self.smooth_frames):
                 alpha = i / (self.smooth_frames - 1)
-                # 使用缓动函数让动画更自然
                 eased_alpha = self.ease_in_out_cubic(alpha)
                 current_x = start_x + (end_x - start_x) * eased_alpha
                 
@@ -152,7 +204,6 @@ class ClosestPairVisualizerUltraSmooth:
                 })
         
         elif transition_type == 'strip_appear':
-            # 带区出现动画
             mid_x = kwargs.get('mid_x')
             delta = kwargs.get('delta')
             strip = kwargs.get('strip', [])
@@ -174,14 +225,12 @@ class ClosestPairVisualizerUltraSmooth:
                 })
         
         elif transition_type == 'highlight_pair':
-            # 点对高亮动画
             pair = kwargs.get('pair')
             highlight_type = kwargs.get('highlight_type', 'discovery')
             depth = kwargs.get('depth', 0)
             
             for i in range(self.highlight_frames):
                 alpha = i / (self.highlight_frames - 1)
-                # 使用正弦波创建脉冲效果
                 pulse = 0.5 + 0.5 * math.sin(alpha * math.pi * 2)
                 
                 self.frames.append({
@@ -194,6 +243,40 @@ class ClosestPairVisualizerUltraSmooth:
                     'global_min_distance': self.global_min_distance,
                     'global_closest_pair': self.global_closest_pair
                 })
+    
+    def add_text_transition(self, text_type, **kwargs):
+        """添加文字平滑过渡效果"""
+        text_content = kwargs.get('text_content', '')
+        frame_base = kwargs.get('frame_base', {})
+        
+        # 文字淡入
+        for i in range(self.text_fade_frames):
+            alpha = i / (self.text_fade_frames - 1)
+            fade_frame = frame_base.copy()
+            fade_frame['type'] = f'{fade_frame["type"]}_text_fade_in'
+            fade_frame['text_alpha'] = alpha
+            fade_frame['text_content'] = text_content
+            fade_frame['text_type'] = text_type
+            self.frames.append(fade_frame)
+        
+        # 文字持续显示
+        for i in range(self.text_hold_frames):
+            hold_frame = frame_base.copy()
+            hold_frame['type'] = f'{hold_frame["type"]}_text_hold'
+            hold_frame['text_alpha'] = 1.0
+            hold_frame['text_content'] = text_content
+            hold_frame['text_type'] = text_type
+            self.frames.append(hold_frame)
+        
+        # 文字淡出
+        for i in range(self.text_fade_frames):
+            alpha = 1.0 - (i / (self.text_fade_frames - 1))
+            fade_frame = frame_base.copy()
+            fade_frame['type'] = f'{fade_frame["type"]}_text_fade_out'
+            fade_frame['text_alpha'] = alpha
+            fade_frame['text_content'] = text_content
+            fade_frame['text_type'] = text_type
+            self.frames.append(fade_frame)
     
     def add_pause_frames(self, frame_data, count=None):
         """添加暂停帧"""
@@ -214,7 +297,7 @@ class ClosestPairVisualizerUltraSmooth:
             return 1 - pow(-2 * t + 2, 3) / 2
     
     def closest_pair_recursive(self, points_x, points_y, indices, depth=0):
-        """分治法递归求最近点对 (超平滑版)"""
+        """分治法递归求最近点对"""
         n = len(points_x)
         
         # 基本情况：点数<=3时使用暴力法
@@ -250,12 +333,12 @@ class ClosestPairVisualizerUltraSmooth:
                 }
                 self.frames.append(base_frame)
                 
-                # 如果更新了全局最佳，添加高亮动画
+                # 如果更新了全局最佳，添加文字提示
                 if updated:
-                    self.add_smooth_transition('highlight_pair', 
-                                             pair=pair, highlight_type='global_update', depth=depth)
+                    self.add_text_transition('global_update', 
+                                            text_content=f"发现新的全局最佳距离: {min_dist:.4f}!",
+                                            frame_base=base_frame)
                 
-                # 暂停以便观察
                 self.add_pause_frames(base_frame)
             else:
                 pair = None
@@ -267,7 +350,7 @@ class ClosestPairVisualizerUltraSmooth:
         mid_point = points_x[mid]
         mid_x = mid_point[0]
         
-        # 分割线动画：从左边界滑动到分割位置
+        # 分割线动画
         self.add_smooth_transition('divide_line', 
                                  start_x=0, end_x=mid_x, depth=depth)
         
@@ -282,6 +365,13 @@ class ClosestPairVisualizerUltraSmooth:
             'global_closest_pair': self.global_closest_pair
         }
         self.frames.append(divide_frame)
+        
+        # 添加深度提示
+        if depth == 0:
+            self.add_text_transition('algorithm_start',
+                                    text_content="开始分治算法求解!",
+                                    frame_base=divide_frame)
+        
         self.add_pause_frames(divide_frame)
         
         # 分割点集
@@ -307,7 +397,6 @@ class ClosestPairVisualizerUltraSmooth:
             d = dr
             pair = pair_r
         
-        # 更新全局最佳
         updated, old_pair = self.update_global_best(d, pair)
         
         # 显示合并结果
@@ -324,34 +413,19 @@ class ClosestPairVisualizerUltraSmooth:
         }
         self.frames.append(merge_frame)
         
-        # 如果更新了全局最佳，添加高亮动画
         if updated:
-            self.add_smooth_transition('highlight_pair', 
-                                     pair=pair, highlight_type='global_update', depth=depth)
+            self.add_text_transition('merge_update',
+                                    text_content=f"合并阶段更新全局最佳: {d:.4f}",
+                                    frame_base=merge_frame)
         
-        # 构建带区 (修复索引问题)
+        # 构建带区（修复索引问题）
         strip = []
         strip_indices = []
-        for p in points_y:
+        for idx in indices:
+            p = self.points[idx]
             if abs(p[0] - mid_x) < d:
                 strip.append(p)
-                # 找到对应的原始索引
-                for idx in indices:
-                    if np.allclose(self.points[idx], p, atol=1e-10):
-                        strip_indices.append(idx)
-                        break
-        
-        # 确保索引长度匹配
-        if len(strip) != len(strip_indices):
-            print(f"警告: 带区构建时索引不匹配 strip={len(strip)}, indices={len(strip_indices)}")
-            # 重新构建，确保匹配
-            strip = []
-            strip_indices = []
-            for idx in indices:
-                p = self.points[idx]
-                if abs(p[0] - mid_x) < d:
-                    strip.append(p)
-                    strip_indices.append(idx)
+                strip_indices.append(idx)
         
         # 带区出现动画
         self.add_smooth_transition('strip_appear', 
@@ -380,10 +454,6 @@ class ClosestPairVisualizerUltraSmooth:
                 pair = pair_s
                 updated, old_pair = self.update_global_best(d, pair)
                 
-                # 新发现高亮动画
-                self.add_smooth_transition('highlight_pair', 
-                                         pair=pair, highlight_type='discovery', depth=depth)
-                
                 # 显示带区结果
                 strip_result_frame = {
                     'type': 'strip_result',
@@ -396,10 +466,10 @@ class ClosestPairVisualizerUltraSmooth:
                 }
                 self.frames.append(strip_result_frame)
                 
-                # 如果更新了全局最佳
-                if updated:
-                    self.add_smooth_transition('highlight_pair', 
-                                             pair=pair, highlight_type='global_update', depth=depth)
+                # 添加发现提示
+                self.add_text_transition('strip_discovery',
+                                        text_content=f"带区发现更优解: {d:.4f}!",
+                                        frame_base=strip_result_frame)
                 
                 self.add_pause_frames(strip_result_frame)
         
@@ -414,7 +484,7 @@ class ClosestPairVisualizerUltraSmooth:
             'global_closest_pair': self.global_closest_pair
         }
         self.frames.append(initial_frame)
-        self.add_pause_frames(initial_frame, count=3)
+        self.add_pause_frames(initial_frame, count=5)
         
         # 排序动画
         indices = list(range(self.n))
@@ -448,6 +518,16 @@ class ClosestPairVisualizerUltraSmooth:
             points_x, points_y, sorted_indices
         )
         
+        # 添加完成提示
+        completion_frame = {
+            'type': 'completion',
+            'global_min_distance': self.global_min_distance,
+            'global_closest_pair': self.global_closest_pair
+        }
+        self.add_text_transition('algorithm_complete',
+                                text_content=f"算法完成! 最短距离: {self.global_min_distance:.4f}",
+                                frame_base=completion_frame)
+        
         # 最终结果高亮动画
         for i in range(self.highlight_frames * 2):
             alpha = i / (self.highlight_frames * 2 - 1)
@@ -472,16 +552,58 @@ class ClosestPairVisualizerUltraSmooth:
             'global_closest_pair': self.global_closest_pair
         }
         self.frames.append(final_frame)
-        self.add_pause_frames(final_frame, count=5)
+        self.add_pause_frames(final_frame, count=8)
         
         return self.global_min_distance, self.global_closest_pair
     
-    def create_animation(self, output_file='closest_pair_ultra_smooth.gif', fps=8, use_pillow=True):
-        """创建超平滑动画"""
-        fig, ax = plt.subplots(figsize=(14, 10))
+    def render_beautiful_text(self, ax, text_content, text_alpha, text_type):
+        """渲染美化的文字效果"""
+        if not text_content:
+            return
+            
+        # 根据类型选择样式
+        if text_type == 'global_update':
+            box_color = ModernColors.SUCCESS_BOX
+            text_size = 14
+            prefix = f"{Symbols.STAR} "
+        elif text_type == 'strip_discovery':
+            box_color = ModernColors.WARNING_BOX
+            text_size = 13
+            prefix = f"{Symbols.DIAMOND} "
+        elif text_type == 'algorithm_start':
+            box_color = ModernColors.INFO_BOX
+            text_size = 15
+            prefix = f"{Symbols.ARROW} "
+        elif text_type == 'algorithm_complete':
+            box_color = ModernColors.SUCCESS_BOX
+            text_size = 16
+            prefix = f"{Symbols.CHECK} "
+        else:
+            box_color = ModernColors.INFO_BOX
+            text_size = 12
+            prefix = f"{Symbols.INFO} "
+        
+        full_text = prefix + text_content
+        
+        # 主要文字
+        ax.text(0.5, 0.85, full_text, transform=ax.transAxes,
+               fontsize=text_size, fontweight='bold',
+               horizontalalignment='center', verticalalignment='center',
+               color=ModernColors.TEXT_PRIMARY, alpha=text_alpha,
+               bbox=dict(boxstyle='round,pad=1.0', facecolor=box_color, 
+                        alpha=text_alpha * 0.9, 
+                        edgecolor=ModernColors.PRIMARY, linewidth=2))
+    
+    def create_animation(self, output_file='closest_pair_beautiful.gif', fps=4, use_pillow=True):
+        """创建美化动画"""
+        fig, ax = plt.subplots(figsize=(16, 12))
+        fig.patch.set_facecolor(ModernColors.BG_MAIN)
         
         def update(frame_idx):
             ax.clear()
+            plt.rcParams['font.family'] = 'Microsoft YaHei'
+            ax.set_facecolor(ModernColors.BG_CARD)
+            
             frame = self.frames[frame_idx]
             frame_type = frame['type']
             
@@ -489,35 +611,38 @@ class ClosestPairVisualizerUltraSmooth:
             global_min_dist = frame.get('global_min_distance', float('inf'))
             global_pair = frame.get('global_closest_pair', None)
             
-            # 绘制所有点（基础层）
-            base_color = 'lightblue'
-            base_alpha = 0.6
+            # 获取文字动画参数
+            text_alpha = frame.get('text_alpha', 0)
+            text_content = frame.get('text_content', '')
+            text_type = frame.get('text_type', '')
             
-            # 根据帧类型调整基础点的显示
-            if 'highlight' in frame_type or 'smooth' in frame_type:
-                base_alpha = 0.3
+            # 绘制所有点（基础层）
+            base_alpha = 0.7 if 'highlight' in frame_type or 'smooth' in frame_type else 0.8
             
             ax.scatter(self.points[:, 0], self.points[:, 1], 
-                      c=base_color, s=50, alpha=base_alpha, 
-                      edgecolors='black', linewidth=0.5, zorder=1)
+                      c=ModernColors.POINT_NORMAL, s=60, alpha=base_alpha, 
+                      edgecolors=ModernColors.PRIMARY, linewidth=0.8, zorder=1)
             
-            # 绘制全局最佳点对（永远在顶层）
+            # 绘制全局最佳点对
             if global_pair and global_min_dist != float('inf'):
                 p1, p2 = self.points[global_pair[0]], self.points[global_pair[1]]
                 
-                global_alpha = 0.8
-                global_size = 120
-                global_linewidth = 3
+                # 添加光晕效果
+                ax.scatter([p1[0], p2[0]], [p1[1], p2[1]], 
+                          c=ModernColors.POINT_BEST, s=200, alpha=0.3, 
+                          edgecolors='none', zorder=7)
                 
                 ax.plot([p1[0], p2[0]], [p1[1], p2[1]], 
-                       'gold', linewidth=global_linewidth, alpha=global_alpha, 
+                       color=ModernColors.LINE_BEST, linewidth=4, alpha=0.9, 
                        label=f"全局最佳 {global_min_dist:.4f}", zorder=8)
                 ax.scatter([p1[0], p2[0]], [p1[1], p2[1]], 
-                          c='gold', s=global_size, edgecolors='orange', 
-                          linewidth=2, zorder=9, alpha=global_alpha)
+                          c=ModernColors.POINT_BEST, s=140, 
+                          edgecolors=ModernColors.PRIMARY, 
+                          linewidth=2.5, zorder=9, alpha=0.95)
             
             # 处理不同类型的帧
-            title = f"帧 {frame_idx + 1}/{len(self.frames)}: "
+            #title = "帧 {frame_idx + 1}/{len(self.frames)}: "
+            title=""
             info_text = ""
             
             if frame_type in ['initial', 'initial_pause']:
@@ -539,16 +664,17 @@ class ClosestPairVisualizerUltraSmooth:
                 depth = frame.get('depth', 0)
                 title += f"分割线移动中 (深度 {depth})"
                 
-                line_alpha = 0.3 + 0.7 * alpha
-                ax.axvline(x=mid_x, color='red', linestyle='--', 
-                          linewidth=2, alpha=line_alpha, label='分割线')
+                line_alpha = 0.4 + 0.6 * alpha
+                ax.axvline(x=mid_x, color=ModernColors.LINE_DIVIDE, linestyle='--', 
+                          linewidth=3, alpha=line_alpha, label='分割线')
                 info_text = f"分割线 x = {mid_x:.3f}"
                 
             elif frame_type in ['divide', 'divide_pause']:
                 mid_x = frame.get('mid_x', 0.5)
                 depth = frame.get('depth', 0)
                 title += f"分治 - 分割 (深度 {depth})"
-                ax.axvline(x=mid_x, color='red', linestyle='--', linewidth=2, label='分割线')
+                ax.axvline(x=mid_x, color=ModernColors.LINE_DIVIDE, 
+                          linestyle='--', linewidth=3, label='分割线')
                 info_text = f"分割线 x = {mid_x:.3f}"
                 
             elif frame_type == 'base_case_highlight':
@@ -560,8 +686,8 @@ class ClosestPairVisualizerUltraSmooth:
                 highlight_alpha = 0.3 + 0.7 * math.sin(alpha * math.pi)
                 if len(points) > 0:
                     ax.scatter(points[:, 0], points[:, 1], 
-                              c='orange', s=80 + 40*highlight_alpha, 
-                              edgecolors='black', linewidth=1.5, 
+                              c=ModernColors.POINT_HIGHLIGHT, s=80 + 40*highlight_alpha, 
+                              edgecolors=ModernColors.PRIMARY, linewidth=1.5, 
                               zorder=5, alpha=highlight_alpha)
                 
             elif frame_type in ['base_case', 'base_case_pause']:
@@ -572,13 +698,15 @@ class ClosestPairVisualizerUltraSmooth:
                 
                 if len(points) > 0:
                     ax.scatter(points[:, 0], points[:, 1], 
-                              c='orange', s=100, edgecolors='black', 
+                              c=ModernColors.POINT_HIGHLIGHT, s=100, 
+                              edgecolors=ModernColors.PRIMARY, 
                               linewidth=1.5, zorder=5)
                 
                 if pair:
                     p1, p2 = self.points[pair[0]], self.points[pair[1]]
                     ax.plot([p1[0], p2[0]], [p1[1], p2[1]], 
-                           'g-', linewidth=2, label=f"局部最近点对")
+                           color=ModernColors.LINE_CURRENT, linewidth=2, 
+                           label=f"局部最近点对")
                     info_text = f"局部距离 = {frame['distance']:.4f}"
                 
             elif frame_type in ['merge', 'merge_pause']:
@@ -588,12 +716,14 @@ class ClosestPairVisualizerUltraSmooth:
                 current_pair = frame.get('current_pair')
                 title += f"合并阶段 (深度 {depth})"
                 
-                ax.axvline(x=mid_x, color='red', linestyle='--', linewidth=2, label='分割线')
+                ax.axvline(x=mid_x, color=ModernColors.LINE_DIVIDE, 
+                          linestyle='--', linewidth=3, label='分割线')
                 
                 if current_pair:
                     p1, p2 = self.points[current_pair[0]], self.points[current_pair[1]]
                     ax.plot([p1[0], p2[0]], [p1[1], p2[1]], 
-                           'purple', linewidth=2, label=f"当前最近点对")
+                           color=ModernColors.LINE_CURRENT, linewidth=2, 
+                           label=f"当前最近点对")
                 
                 info_text = f"当前δ = {delta:.4f}"
                 
@@ -605,19 +735,20 @@ class ClosestPairVisualizerUltraSmooth:
                 strip = frame.get('strip', [])
                 title += f"带区出现中 (深度 {depth})"
                 
-                rect_alpha = 0.1 + 0.1 * alpha
+                rect_alpha = 0.15 + 0.15 * alpha
                 rect = Rectangle((mid_x - delta, 0), 2 * delta, 1, 
-                                alpha=rect_alpha, facecolor='yellow', 
-                                edgecolor='orange', linewidth=2)
+                                alpha=rect_alpha, facecolor=ModernColors.STRIP_FILL, 
+                                edgecolor=ModernColors.STRIP_BORDER, linewidth=2)
                 ax.add_patch(rect)
-                ax.axvline(x=mid_x, color='red', linestyle='--', linewidth=2)
+                ax.axvline(x=mid_x, color=ModernColors.LINE_DIVIDE, 
+                          linestyle='--', linewidth=3)
                 
                 if len(strip) > 0:
                     strip_array = np.array(strip)
                     point_alpha = alpha
                     ax.scatter(strip_array[:, 0], strip_array[:, 1], 
-                              c='yellow', s=60 + 40*alpha, 
-                              edgecolors='orange', linewidth=2, 
+                              c=ModernColors.POINT_HIGHLIGHT, s=60 + 40*alpha, 
+                              edgecolors=ModernColors.STRIP_BORDER, linewidth=2, 
                               zorder=5, alpha=point_alpha)
                 
             elif frame_type in ['strip', 'strip_pause']:
@@ -628,40 +759,20 @@ class ClosestPairVisualizerUltraSmooth:
                 title += f"检查带区 (深度 {depth})"
                 
                 rect = Rectangle((mid_x - delta, 0), 2 * delta, 1, 
-                                alpha=0.2, facecolor='yellow', 
-                                edgecolor='orange', linewidth=2)
+                                alpha=0.3, facecolor=ModernColors.STRIP_FILL, 
+                                edgecolor=ModernColors.STRIP_BORDER, linewidth=2)
                 ax.add_patch(rect)
-                ax.axvline(x=mid_x, color='red', linestyle='--', linewidth=2, label='分割线')
+                ax.axvline(x=mid_x, color=ModernColors.LINE_DIVIDE, 
+                          linestyle='--', linewidth=3, label='分割线')
                 
                 if len(strip) > 0:
                     strip_array = np.array(strip)
                     ax.scatter(strip_array[:, 0], strip_array[:, 1], 
-                              c='yellow', s=100, edgecolors='orange', 
+                              c=ModernColors.POINT_HIGHLIGHT, s=100, 
+                              edgecolors=ModernColors.STRIP_BORDER, 
                               linewidth=2, zorder=5)
                 
                 info_text = f"δ = {delta:.4f}\n带区宽度 = {2*delta:.4f}\n带区点数 = {len(strip)}"
-                
-            elif frame_type == 'highlight_pair_smooth':
-                depth = frame.get('depth', 0)
-                pair = frame.get('pair')
-                pulse = frame.get('pulse', 1)
-                highlight_type = frame.get('highlight_type', 'discovery')
-                
-                if highlight_type == 'discovery':
-                    title += f"发现新的最近点对! (深度 {depth})"
-                else:
-                    title += f"更新全局最佳! (深度 {depth})"
-                
-                if pair:
-                    p1, p2 = self.points[pair[0]], self.points[pair[1]]
-                    line_width = 2 + 2 * pulse
-                    point_size = 100 + 50 * pulse
-                    color = 'red' if highlight_type == 'discovery' else 'gold'
-                    ax.plot([p1[0], p2[0]], [p1[1], p2[1]], 
-                           color, linewidth=line_width, label=f"新最近点对", zorder=6)
-                    ax.scatter([p1[0], p2[0]], [p1[1], p2[1]], 
-                              c=color, s=point_size, edgecolors='darkred', 
-                              linewidth=2, zorder=7, alpha=pulse)
                 
             elif frame_type in ['strip_result', 'strip_result_pause']:
                 depth = frame.get('depth', 0)
@@ -671,17 +782,20 @@ class ClosestPairVisualizerUltraSmooth:
                 title += f"带区发现更近点对! (深度 {depth})"
                 
                 rect = Rectangle((mid_x - delta, 0), 2 * delta, 1, 
-                                alpha=0.2, facecolor='yellow', 
-                                edgecolor='orange', linewidth=2)
+                                alpha=0.3, facecolor=ModernColors.STRIP_FILL, 
+                                edgecolor=ModernColors.STRIP_BORDER, linewidth=2)
                 ax.add_patch(rect)
-                ax.axvline(x=mid_x, color='red', linestyle='--', linewidth=2)
+                ax.axvline(x=mid_x, color=ModernColors.LINE_DIVIDE, 
+                          linestyle='--', linewidth=3)
                 
                 if pair:
                     p1, p2 = self.points[pair[0]], self.points[pair[1]]
                     ax.plot([p1[0], p2[0]], [p1[1], p2[1]], 
-                           'red', linewidth=3, label=f"新最近点对", zorder=6)
+                           color=ModernColors.LINE_NEW, linewidth=3, 
+                           label=f"新最近点对", zorder=6)
                     ax.scatter([p1[0], p2[0]], [p1[1], p2[1]], 
-                              c='red', s=150, edgecolors='darkred', 
+                              c=ModernColors.POINT_ACTIVE, s=150, 
+                              edgecolors=ModernColors.PRIMARY, 
                               linewidth=2, zorder=7)
                 
                 info_text = f"新距离 = {delta:.4f}"
@@ -691,7 +805,7 @@ class ClosestPairVisualizerUltraSmooth:
                 pulse = frame.get('pulse', 1)
                 pair = frame.get('pair')
                 distance = frame.get('distance', 0)
-                title += " 算法完成! "
+                title += "算法完成!"
                 
                 if pair:
                     p1, p2 = self.points[pair[0]], self.points[pair[1]]
@@ -700,20 +814,22 @@ class ClosestPairVisualizerUltraSmooth:
                     for i in range(3):
                         radius = (distance/2) * (1 + i * 0.5) * pulse
                         circle = Circle(p1, radius, fill=False, 
-                                      edgecolor='red', linestyle=':', 
+                                      edgecolor=ModernColors.LINE_NEW, linestyle=':', 
                                       linewidth=2-i*0.5, alpha=0.5-i*0.1)
                         ax.add_patch(circle)
                         circle = Circle(p2, radius, fill=False, 
-                                      edgecolor='red', linestyle=':', 
+                                      edgecolor=ModernColors.LINE_NEW, linestyle=':', 
                                       linewidth=2-i*0.5, alpha=0.5-i*0.1)
                         ax.add_patch(circle)
                     
                     line_width = 3 + 2 * pulse
                     point_size = 150 + 100 * pulse
                     ax.plot([p1[0], p2[0]], [p1[1], p2[1]], 
-                           'red', linewidth=line_width, label=f"最近点对", zorder=6)
+                           color=ModernColors.LINE_NEW, linewidth=line_width, 
+                           label=f"最近点对", zorder=6)
                     ax.scatter([p1[0], p2[0]], [p1[1], p2[1]], 
-                              c='red', s=point_size, edgecolors='darkred', 
+                              c=ModernColors.POINT_ACTIVE, s=point_size, 
+                              edgecolors=ModernColors.PRIMARY, 
                               linewidth=3, zorder=7)
                 
                 info_text = f"最小距离 = {distance:.6f}"
@@ -726,56 +842,93 @@ class ClosestPairVisualizerUltraSmooth:
                 if pair:
                     p1, p2 = self.points[pair[0]], self.points[pair[1]]
                     ax.plot([p1[0], p2[0]], [p1[1], p2[1]], 
-                           'red', linewidth=4, label=f"最近点对", zorder=6)
+                           color=ModernColors.LINE_NEW, linewidth=4, 
+                           label=f"最近点对", zorder=6)
                     ax.scatter([p1[0], p2[0]], [p1[1], p2[1]], 
-                              c='red', s=200, edgecolors='darkred', 
+                              c=ModernColors.POINT_ACTIVE, s=200, 
+                              edgecolors=ModernColors.PRIMARY, 
                               linewidth=2, zorder=7)
                     
                     # 距离圆圈
                     circle1 = Circle(p1, distance/2, fill=False, 
-                                   edgecolor='red', linestyle=':', 
+                                   edgecolor=ModernColors.LINE_NEW, linestyle=':', 
                                    linewidth=1.5, alpha=0.5)
                     circle2 = Circle(p2, distance/2, fill=False, 
-                                   edgecolor='red', linestyle=':', 
+                                   edgecolor=ModernColors.LINE_NEW, linestyle=':', 
                                    linewidth=1.5, alpha=0.5)
                     ax.add_patch(circle1)
                     ax.add_patch(circle2)
                 
                     info_text = f"最小距离 = {distance:.6f}\n"
-                    info_text += f"点对: ({p1[0]:.3f}, {p1[1]:.3f})  ({p2[0]:.3f}, {p2[1]:.3f})"
+                    info_text += f"点对: ({p1[0]:.3f}, {p1[1]:.3f}) {Symbols.ARROW} ({p2[0]:.3f}, {p2[1]:.3f})"
             
             # 设置坐标轴
-            ax.set_xlim(-0.05, 1.05)
-            ax.set_ylim(-0.05, 1.05)
+            ax.set_xlim(-0.08, 1.08)
+            ax.set_ylim(-0.08, 1.08)
             ax.set_aspect('equal')
-            ax.set_xlabel('X 坐标', fontsize=12)
-            ax.set_ylabel('Y 坐标', fontsize=12)
-            ax.set_title(title, fontsize=14, fontweight='bold')
-            ax.legend(loc='upper left', fontsize=10)
-            ax.grid(True, alpha=0.3)
             
-            # 左下角信息文本框
+            # 美化坐标轴标签
+            ax.set_xlabel('X 坐标', fontsize=14, fontweight='500', 
+                         color=ModernColors.TEXT_PRIMARY)
+            ax.set_ylabel('Y 坐标', fontsize=14, fontweight='500', 
+                         color=ModernColors.TEXT_PRIMARY)
+            
+            # 现代化标题
+            ax.set_title(title, fontsize=16, fontweight='600', 
+                        color=ModernColors.TEXT_PRIMARY, pad=20)
+            
+            # 美化图例
+            handles, labels = ax.get_legend_handles_labels()
+            if handles:
+                legend = ax.legend(loc='upper left', fontsize=11, 
+                                 frameon=True, fancybox=True, shadow=True)
+                legend.get_frame().set_facecolor(ModernColors.BG_CARD)
+                legend.get_frame().set_edgecolor(ModernColors.SECONDARY)
+                legend.get_frame().set_alpha(0.95)
+            
+            # 现代化网格
+            ax.grid(True, alpha=0.25, linewidth=0.8, color=ModernColors.SECONDARY)
+            
+            # 渲染文字动画
+            if text_content and text_alpha > 0:
+                self.render_beautiful_text(ax, text_content, text_alpha, text_type)
+            
+            # 美化信息文本框
             if info_text:
-                ax.text(0.02, 0.02, info_text, transform=ax.transAxes,
-                       fontsize=10, verticalalignment='bottom',
-                       bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+                ax.text(0.03, 0.03, info_text, transform=ax.transAxes,
+                       fontsize=12, fontweight='500', verticalalignment='bottom',
+                       color=ModernColors.TEXT_PRIMARY,
+                       bbox=dict(boxstyle='round,pad=0.8', 
+                                facecolor=ModernColors.INFO_BOX, 
+                                alpha=0.9, edgecolor=ModernColors.SECONDARY,
+                                linewidth=1.5))
             
-            # 右上角全局状态面板
-            status_text = "全局状态\n"
+            # 美化的全局状态面板
+            status_text = f"{Symbols.TARGET} 实时状态\n"
             if global_min_dist != float('inf'):
                 status_text += f"最短距离: {global_min_dist:.6f}\n"
                 if global_pair:
                     p1, p2 = self.points[global_pair[0]], self.points[global_pair[1]]
-                    status_text += f"点对: P{global_pair[0]}  P{global_pair[1]}\n"
+                    status_text += f"点对: P{global_pair[0]} {Symbols.ARROW} P{global_pair[1]}\n"
                     status_text += f"坐标: ({p1[0]:.3f}, {p1[1]:.3f})\n"
                     status_text += f"     ({p2[0]:.3f}, {p2[1]:.3f})"
             else:
-                status_text += "暂无结果"
+                status_text += f"{Symbols.SEARCH} 搜索中..."
             
-            status_color = 'lightgreen' if global_pair else 'lightgray'
-            ax.text(0.98, 0.98, status_text, transform=ax.transAxes,
-                   fontsize=10, verticalalignment='top', horizontalalignment='right',
-                   bbox=dict(boxstyle='round', facecolor=status_color, alpha=0.9))
+            status_color = ModernColors.SUCCESS_BOX if global_pair else ModernColors.INFO_BOX
+            ax.text(0.97, 0.97, status_text, transform=ax.transAxes,
+                   fontsize=12, fontweight='500', 
+                   verticalalignment='top', horizontalalignment='right',
+                   color=ModernColors.TEXT_PRIMARY,
+                   bbox=dict(boxstyle='round,pad=1.0', 
+                            facecolor=status_color, alpha=0.9,
+                            edgecolor=ModernColors.PRIMARY, linewidth=2))
+            
+            # 添加水印
+            ax.text(0.99, 0.01, f'{Symbols.STAR} 算法可视化--白晨均', transform=ax.transAxes,
+                   fontsize=10, alpha=0.6, fontweight='300',
+                   horizontalalignment='right', verticalalignment='bottom',
+                   color=ModernColors.TEXT_SECONDARY)
         
         anim = animation.FuncAnimation(fig, update, frames=len(self.frames),
                                       interval=1000//fps, repeat=True)
@@ -784,39 +937,39 @@ class ClosestPairVisualizerUltraSmooth:
         if use_pillow or output_file.endswith('.gif'):
             Writer = animation.writers['pillow']
             writer = Writer(fps=fps)
-            anim.save(output_file, writer=writer, dpi=120)
+            anim.save(output_file, writer=writer, dpi=150)
         else:
             try:
                 Writer = animation.writers['ffmpeg']
-                writer = Writer(fps=fps, metadata=dict(artist='Algorithm Visualization'), bitrate=1800)
-                anim.save(output_file, writer=writer, dpi=120)
+                writer = Writer(fps=fps, metadata=dict(artist='Beautiful Algorithm Visualization'), bitrate=2400)
+                anim.save(output_file, writer=writer, dpi=150)
             except RuntimeError:
                 Writer = animation.writers['pillow']
                 writer = Writer(fps=fps)
                 output_file = output_file.replace('.mp4', '.gif')
-                anim.save(output_file, writer=writer, dpi=120)
+                anim.save(output_file, writer=writer, dpi=150)
         
         plt.close()
-        print(f"超平滑动画已保存到: {output_file}")
+        print(f"美化动画已保存到: {output_file}")
         print(f"总帧数: {len(self.frames)}")
  
  
 def main():
     """主函数"""
-    N = 10  # 减少点数让动画更清晰，避免复杂的索引问题
+    N = 45
     SEED = 42
-    OUTPUT_FILE = 'closest_pair_ultra_smooth_fixed.gif'
-    FPS = 4 # 稍微降低帧率
+    OUTPUT_FILE = 'closest_pair_beautiful_final.gif'
+    FPS = 7  # 降低帧率让文字有足够时间显示
     
-    print("=" * 60)
-    print("平面最近点对问题 - 分治算法可视化 (超平滑版-修复)")
-    print("=" * 60)
+    print(f"{Symbols.STAR} " + "=" * 58)
+    print("   平面最近点对问题 - 分治算法可视化 (最终美化版)")
+    print(f"{Symbols.STAR} " + "=" * 58)
     print(f"点数量: {N}")
     print(f"随机种子: {SEED}")
     print()
     
-    # 创建超平滑可视化器
-    visualizer = ClosestPairVisualizerUltraSmooth(n=N, seed=SEED)
+    # 创建美化版可视化器
+    visualizer = ClosestPairVisualizerBeautiful(n=N, seed=SEED)
     min_dist, pair = visualizer.solve()
     
     print("算法求解完成！")
@@ -827,13 +980,13 @@ def main():
         print(f"  点1: ({p1[0]:.6f}, {p1[1]:.6f})")
         print(f"  点2: ({p2[0]:.6f}, {p2[1]:.6f})")
     
-    print(f"\n准备生成 {len(visualizer.frames)} 帧的超平滑动画...")
-    print("正在生成超平滑动画...")
+    print(f"\n准备生成 {len(visualizer.frames)} 帧的美化动画...")
+    print("正在生成美化动画...")
     visualizer.create_animation(output_file=OUTPUT_FILE, fps=FPS)
     print()
-    print("=" * 60)
+    print(f"{Symbols.CHECK} " + "=" * 58)
     print("完成！")
-    print("=" * 60)
+    print(f"{Symbols.CHECK} " + "=" * 58)
  
  
 if __name__ == "__main__":
