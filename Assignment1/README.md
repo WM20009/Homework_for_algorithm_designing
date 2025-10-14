@@ -9,15 +9,16 @@
 ```
 .
 ├── closest_pair_visualization.py    # 主程序（算法实现+可视化）
+├── closest_pair_animation.py         #可视化动画
 ├── data_generator.py                 # 数据生成脚本
 ├── requirements.txt                  # 依赖包列表
-├── README.md                         # 本文件
-└── report_template.md                # 报告模板
+├── README.pdf                         # 本文件
+└── report_template.pdf                # 报告
 ```
 
 ## 环境要求
 
-- Python 3.8 或更高版本
+- Python 3.8.20 或更高版本
 - 操作系统：Windows / macOS / Linux 
 
 ## 依赖安装
@@ -28,7 +29,7 @@
 pip install -r requirements.txt
 ```
 
-或手动安装：
+或：
 
 ```bash
 pip install numpy matplotlib pillow
@@ -51,7 +52,7 @@ pip install numpy matplotlib pillow
 python closest_pair_visualization.py
 ```
 
-**就这么简单！** 程序将：
+ 程序将：
 - 生成满足要求的随机点集
 - 执行分治算法求解最近点对
 - 自动生成可视化动画文件 `closest_pair_beautiful_final.gif`
@@ -63,8 +64,8 @@ python closest_pair_visualization.py
 ```python
 N = 45        # 点的数量 (要求 >= 36)
 SEED = 42     # 随机种子（保证可复现）
-OUTPUT_FILE = 'closest_pair_beautiful.gif'  # GIF 格式
-FPS = 7       # 动画帧率
+OUTPUT_FILE = 'closest_pair_animation.gif'  # GIF 格式
+FPS = 15       # 动画帧率
 ```
 
 **如果需要 MP4 格式**（需要安装 ffmpeg）：
@@ -79,6 +80,7 @@ python data_generator.py
 ```
 
 可生成多组测试数据，用于验证算法正确性。
+**注** 主程序中所用的随机数据在 `closest_pair_visualization.py`中直接生成，不是在这个文件中生成。
 
 ## 算法特点
 
@@ -137,17 +139,12 @@ python data_generator.py
 ### Q: 是否需要安装 ffmpeg？
 A: **不需要！** 默认使用 GIF 格式，只需要 Python 的三个包（numpy, matplotlib, pillow）即可完全离线运行。
 
-### Q: 能否生成 MP4 格式？
-A: 可以，但需要额外安装 ffmpeg。修改代码中的 `OUTPUT_FILE` 为 `.mp4` 即可。
-
 ### Q: 动画生成失败？
 A: 
-1. 确认已安装 pillow：`pip install pillow`
+1. 确认已安装所有依赖
 2. 检查磁盘空间是否足够
 3. 尝试降低 dpi 或 fps
 
 ### Q: 如何加快/减慢动画速度？
 A: 修改 `FPS` 参数，值越大动画越快
 
-### Q: 提示内存不足？
-A: 减少点数 N 或降低动画分辨率（修改 figsize 和 dpi）
