@@ -1,0 +1,160 @@
+{
+  "seed": 354,
+  "n": 25,
+  "activities": [
+    {
+      "id": 0,
+      "start": 13,
+      "end": 24,
+      "weight": 19
+    },
+    {
+      "id": 1,
+      "start": 10,
+      "end": 25,
+      "weight": 35
+    },
+    {
+      "id": 2,
+      "start": 20,
+      "end": 30,
+      "weight": 30
+    },
+    {
+      "id": 3,
+      "start": 5,
+      "end": 35,
+      "weight": 60
+    },
+    {
+      "id": 4,
+      "start": 25,
+      "end": 35,
+      "weight": 28
+    },
+    {
+      "id": 5,
+      "start": 35,
+      "end": 42,
+      "weight": 22
+    },
+    {
+      "id": 6,
+      "start": 42,
+      "end": 48,
+      "weight": 25
+    },
+    {
+      "id": 7,
+      "start": 44,
+      "end": 54,
+      "weight": 23
+    },
+    {
+      "id": 8,
+      "start": 48,
+      "end": 55,
+      "weight": 23
+    },
+    {
+      "id": 9,
+      "start": 55,
+      "end": 61,
+      "weight": 26
+    },
+    {
+      "id": 10,
+      "start": 54,
+      "end": 67,
+      "weight": 40
+    },
+    {
+      "id": 11,
+      "start": 61,
+      "end": 68,
+      "weight": 24
+    },
+    {
+      "id": 12,
+      "start": 50,
+      "end": 69,
+      "weight": 35
+    },
+    {
+      "id": 13,
+      "start": 68,
+      "end": 74,
+      "weight": 27
+    },
+    {
+      "id": 14,
+      "start": 65,
+      "end": 77,
+      "weight": 29
+    },
+    {
+      "id": 15,
+      "start": 74,
+      "end": 81,
+      "weight": 25
+    },
+    {
+      "id": 16,
+      "start": 69,
+      "end": 81,
+      "weight": 29
+    },
+    {
+      "id": 17,
+      "start": 72,
+      "end": 85,
+      "weight": 31
+    },
+    {
+      "id": 18,
+      "start": 81,
+      "end": 87,
+      "weight": 28
+    },
+    {
+      "id": 19,
+      "start": 77,
+      "end": 88,
+      "weight": 40
+    },
+    {
+      "id": 20,
+      "start": 74,
+      "end": 91,
+      "weight": 33
+    },
+    {
+      "id": 21,
+      "start": 87,
+      "end": 93,
+      "weight": 26
+    },
+    {
+      "id": 22,
+      "start": 77,
+      "end": 96,
+      "weight": 33
+    },
+    {
+      "id": 23,
+      "start": 93,
+      "end": 100,
+      "weight": 29
+    },
+    {
+      "id": 24,
+      "start": 88,
+      "end": 102,
+      "weight": 33
+    }
+  ],
+  "greedy_weight": 302,
+  "dp_weight": 318,
+  "diff": 16,
+  "ratio": 0.949685534591195
+}
